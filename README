@@ -1,0 +1,11 @@
+
+measure times:
+on one console run:
+LD_PRELOAD=./libover.so XDP_IFACE=eth0 ./tutorial_pubsub_subscribe
+
+on other console get timestamps:
+perf probe -x ./tutorial_pubsub_subscribe enter=subscriptionPollingCallback
+perf probe -x ./tutorial_pubsub_subscribe exit=subscriptionPollingCallback%return
+perf record -e probe_tutorial_pubsub_subscribe:enter -e probe_tutorial_pubsub_subscribe:exit__return -aR  -p 11748
+perf script > timestamps.txt
+python gendata.py timestamps.txt > timestamps.csv
