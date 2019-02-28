@@ -1,5 +1,8 @@
 
 measure times:
+on remote machine run multicast sender:
+./tutorial_pubsub_publish
+
 on one console run:
 LD_PRELOAD=./libover.so XDP_IFACE=eth0 ./tutorial_pubsub_subscribe
 
