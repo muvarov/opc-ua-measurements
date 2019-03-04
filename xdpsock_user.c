@@ -45,7 +45,7 @@
 #endif
 
 #define NUM_FRAMES 131072
-#define FRAME_HEADROOM 0
+#define FRAME_HEADROOM 4
 #define FRAME_SHIFT 11
 #define FRAME_SIZE 2048
 #define NUM_DESCS 1024
@@ -828,10 +828,16 @@ ssize_t af_xdp_recvfrom(void *buf)
 		hex_dump(pkt, descs[i].len, descs[i].addr);
 		//printf("get packet size %ld\n", descs[i].len);
 		memcpy(buf, pkt + 0x2a, 31);
+		/* fake bpf timestamp, comment out for real use */
+		uint32_t *ts = (uintptr_t)pkt - sizeof(uint32_t);
+		*ts = 0x12345678;
+
+		/* copy time stamp to the end of user data */
+		*((uint32_t *)((uintptr_t)buf + 31)) = *ts;
 	}
 
 	umem_fill_to_kernel_ex(&xsk->umem->fq, descs, rcvd);
-	return 31;
+	return 31 + sizeof(uint32_t);
 }
 
 static void rx_drop_all(void)
