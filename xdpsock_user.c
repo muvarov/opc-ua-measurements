@@ -827,7 +827,7 @@ ssize_t af_xdp_recvfrom(void *buf)
 
 		hex_dump(pkt, descs[i].len, descs[i].addr);
 		//printf("get packet size %ld\n", descs[i].len);
-		memcpy(buf, pkt + 0x2c, 31);
+		memcpy(buf, pkt + 0x2a, 31);
 	}
 
 	umem_fill_to_kernel_ex(&xsk->umem->fq, descs, rcvd);
