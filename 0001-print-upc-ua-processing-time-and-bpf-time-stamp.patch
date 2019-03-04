@@ -1,0 +1,52 @@
+From b708333940de446bf8e8b46f131c1946924d7a48 Mon Sep 17 00:00:00 2001
+From: Maxim Uvarov <maxim.uvarov@linaro.org>
+Date: Thu, 28 Feb 2019 23:40:12 +0300
+Subject: [PATCH] print upc ua processing time and bpf time stamp
+
+This patch was tested on top of:
+	commit 560420398922bdd48c03a9b7dbc9525b1513a23a
+	Author: Silvio Traversaro <silvio.traversaro@iit.it>
+	Date:   Thu Feb 7 23:33:39 2019 +0100
+    	Fix macros_public.cmake when used with Unix Makefiles CMake generator
+
+Signed-off-by: Maxim Uvarov <maxim.uvarov@linaro.org>
+---
+ examples/pubsub/tutorial_pubsub_subscribe.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/examples/pubsub/tutorial_pubsub_subscribe.c b/examples/pubsub/tutorial_pubsub_subscribe.c
+index f282885..67adf11 100644
+--- a/examples/pubsub/tutorial_pubsub_subscribe.c
++++ b/examples/pubsub/tutorial_pubsub_subscribe.c
+@@ -53,6 +53,14 @@ subscriptionPollingCallback(UA_Server *server, UA_PubSubConnection *connection)
+         return;
+     }
+ 
++    UA_DateTime nowTime = UA_DateTime_now();
++    /* BPF af_xdp timestamp is placed in packet header. We just get access to it from
++     * offset from recieve buffer data. It's needed to read ts before _decodeBinary.
++     */
++    uint32_t *af_xdp_ts_ptr = (uint32_t *)((uintptr_t)buffer.data +  buffer.length - sizeof(uint32_t));
++    uint32_t af_xdp_ts = *af_xdp_ts_ptr;
++    buffer.length -= 4;
++
+     /* Decode the message */
+     UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
+                 "Message length: %lu", (unsigned long) buffer.length);
+@@ -86,6 +94,13 @@ subscriptionPollingCallback(UA_Server *server, UA_PubSubConnection *connection)
+         } else if (currentType == &UA_TYPES[UA_TYPES_DATETIME]) {
+             UA_DateTime value = *(UA_DateTime *)dsm->data.keyFrameData.dataSetFields[i].value.data;
+             UA_DateTimeStruct receivedTime = UA_DateTime_toStruct(value);
++
++	    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
++		       "Current  ts %lld us, af_xdp_ts %ld us, diff %lld us\n",
++			(nowTime - UA_DATETIME_UNIX_EPOCH) / UA_DATETIME_USEC,
++			(unsigned long)af_xdp_ts,
++			((uint64_t)(nowTime - UA_DATETIME_UNIX_EPOCH) / UA_DATETIME_USEC) - af_xdp_ts);
++
+             UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
+                         "Message content: [DateTime] \t"
+                         "Received date: %02i-%02i-%02i Received time: %02i:%02i:%02i",
+-- 
+2.7.4
+

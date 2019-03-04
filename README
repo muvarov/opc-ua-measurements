@@ -1,5 +1,16 @@
 
-measure times:
+Prepare:
+https://github.com/open62541/open62541.git
+mkdir open62541/build
+cd open62541/build
+git reset --hard 5604203
+cmake -DUA_ENABLE_PUBSUB=1 -DUA_ENABLE_PUBSUB_ETH_UADP=1 -DUA_BUILD_EXAMPLES=1 ../
+make
+
+measure times 1:
+
+Use: 0001-tutorial_pubsub_subscribe.c-remove-prints.patch
+
 on remote machine run multicast sender:
 ./tutorial_pubsub_publish
 
@@ -12,3 +23,9 @@ perf probe -x ./tutorial_pubsub_subscribe exit=subscriptionPollingCallback%retur
 perf record -e probe_tutorial_pubsub_subscribe:enter -e probe_tutorial_pubsub_subscribe:exit__return -aR  -p 11748
 perf script > timestamps.txt
 python gendata.py timestamps.txt > timestamps.csv
+
+
+mesure times 2:
+Use: 0001-print-upc-ua-processing-time-and-bpf-time-stamp.patch
+
+Run the same test as 1 but just grab times from console output.
