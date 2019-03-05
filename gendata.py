@@ -2,7 +2,6 @@
 import sys
 
 file = sys.argv[1]
-print "openning file %s" % file
 
 f = open(file, "r") 
 for line in f:
@@ -11,5 +10,8 @@ for line in f:
     nextline=f.next()
     end = nextline.split(" ")[6][:-1]
     end= float(end)
-    print "%.6f" % (end - enter)
+    #sec flot times
+    #print "%.6f" % (end - enter)
+    #us times
+    print "%f" % float((end - enter) * 1000000.0)
 f.close()
