@@ -10,7 +10,7 @@ make
 measure times 1:
 
 Use: 0001-tutorial_pubsub_subscribe.c-remove-prints.patch
-
+     0002-remove-malloc.patch
 on remote machine run multicast sender:
 ./tutorial_pubsub_publish
 
@@ -27,5 +27,6 @@ python gendata.py timestamps.txt > timestamps.csv
 
 mesure times 2:
 Use: 0001-print-upc-ua-processing-time-and-bpf-time-stamp.patch
+     0002-remove-malloc.patch
 
 Run the same test as 1 but just grab times from console output.
