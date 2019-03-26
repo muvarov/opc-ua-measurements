@@ -1,7 +1,7 @@
 From dd0493852babd6329799589f109c21c9d685db19 Mon Sep 17 00:00:00 2001
 From: Maxim Uvarov <maxim.uvarov@linaro.org>
 Date: Thu, 28 Feb 2019 23:40:12 +0300
-Subject: [PATCH] tutorial_pubsub_subscribe.c: remove prints
+Subject: [PATCH 1/4] tutorial_pubsub_subscribe.c: remove prints
 
 To measure callback speed we need to disable debuggin console
 prints.
